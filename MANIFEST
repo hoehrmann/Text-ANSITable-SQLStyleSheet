@@ -1,10 +1,10 @@
 eg/ansitable-sqlstylesheet-random-ints.pl
+eg/ansitable-sqlstylesheet-random-ints.png
 MANIFEST
-t/02parity.t
 t/99podcov.t
 t/98podsyn.t
 t/01basic.t
-t/03refattr.t
+t/02example.t
 lib/Text/ANSITable/SQLStyleSheet.pm
 README
 Changes
