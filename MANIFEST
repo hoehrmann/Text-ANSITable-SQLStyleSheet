@@ -5,6 +5,7 @@ t/99podcov.t
 t/98podsyn.t
 t/01basic.t
 t/02example.t
+t/03coderef.t
 lib/Text/ANSITable/SQLStyleSheet.pm
 README
 Changes
