@@ -8,7 +8,7 @@ use JSON;
 use DBI;
 use DBD::SQLite;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 our $Json = JSON->new;
 
@@ -56,7 +56,7 @@ sub _sqlite_type_from_sth_ix {
 
 sub _from_sth_sql {
 
-  my ($class, $sth, $sql) = @_;
+  my ($class, $sth, $sql_or_code) = @_;
 
   my $dbh = DBI->connect('dbi:SQLite:dbname=:memory:');
 
@@ -95,19 +95,25 @@ sub _from_sth_sql {
 
 #  $dbh->sqlite_backup_to_file('DEBUG.sqlite');
 
-  my $final_sth = $dbh->prepare( $sql );
+  if ( 'CODE' eq ref( $sql_or_code ) ) {
 
-  $final_sth->execute();
+    return $class->from_sth( $sql_or_code->($dbh) );
 
-  return $class->from_sth( $final_sth );
+  } else {
+
+    my $final_sth = $dbh->prepare( $sql_or_code );
+    $final_sth->execute();
+    return $class->from_sth( $final_sth );
+
+  }
 
 }
 
 sub from_sth {
 
-  my ($class, $sth, $sql) = @_;
+  my ($class, $sth, $sql_or_code) = @_;
 
-  return _from_sth_sql(@_) if defined $sql;
+  return _from_sth_sql(@_) if defined $sql_or_code;
 
   my %col2ix;
   $col2ix{$_} = keys %col2ix
@@ -331,12 +337,13 @@ SQLite database before your "style sheet" is applied.
 
 =over
 
-=item from_sth( $sth, $sql )
+=item from_sth( $sth, $query )
 
 Fetches all rows from C<$sth> into a C<data> table in a temporary
-in-memory SQLite database and then executes C<$sql> in that database.
+in-memory SQLite database and then executes C<$query> in that
+database.
 
-The C<$sql> argument is optional; if omitted, data and styles are 
+The C<$query> argument is optional; if omitted, data and styles are 
 taken directly from C<$sth> as if you had called
 
   from_sth($sth, 'SELECT * FROM data')
@@ -344,7 +351,7 @@ taken directly from C<$sth> as if you had called
 but no temporary database is created. This tight coupling between 
 data and style computation can be more convenient in some situations.
 
-NOTE: While C<$sql> will always be executed against SQLite, this 
+NOTE: While C<$query> will always be executed against SQLite, this 
 module does not care which database driver C<$sth> is associated 
 with. It does try to create the temporary table with the right type
 affinity so SQLite does not suddenly treat integers as strings or 
@@ -365,6 +372,36 @@ If specified, the value overrides the value that would otherwise be
 used for the cell. This allows you, for instance, to work with the 
 full data in the "style sheet", and abbreviate or otherwise transform
 it for display.
+
+The C<$query> argument can also be a C<CODE> reference. The code
+will be executed after the temporary database has been created with
+the database handle as only argument, and is expected to return an
+executed statement handle. That gives callers a chance to install
+additional functions onto the handle or pass arguments to the query.
+
+  my $t = Text::ANSITable::SQLStyleSheet->from_sth($sth, sub {
+    my ($dbh) = @_;
+
+    $dbh->sqlite_create_function('truncate', 2, sub {
+      my ($string, $max_length) = @_;
+    });
+
+    my $sth = $dbh->prepare(q{
+      WITH 
+      args AS (
+        SELECT ? AS max_length
+      )
+      SELECT
+        ... truncate(long_text, args.max_length) ...
+      FROM  
+        data
+          JOIN args
+    });
+
+    $sth->execute( 100 );
+
+    return $sth;
+  });
 
 The return value is a C<Text::ANSITable> object.
 

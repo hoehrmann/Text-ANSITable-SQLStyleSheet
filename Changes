@@ -1,3 +1,7 @@
+0.04 October 2018
+- allow query argument to be a coderef to allow installing
+  custom functions and passing arguments to style query.
+
 0.03 October 2018
 - added missing sort (columns came out in random order)
 
