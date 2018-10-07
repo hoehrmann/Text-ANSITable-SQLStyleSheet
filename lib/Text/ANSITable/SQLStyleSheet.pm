@@ -491,6 +491,13 @@ temporary database might then be associated with the wrong column
 affinity, which can result in odd behavior in your style sheet 
 query.
 
+Furthermore, I am not sure yet how to deal with encoding issues.
+C<Text::ANSITable> actually needs scalars with the UTF-8 flag set
+in order to properly calculate lengths, but among other things, the 
+flag is lost when creating and retrieving from the temporary
+database. Perhaps these days it could be forcibly set on everything
+with an option to turn that behavior off?
+
 =head1 BUG REPORTS
 
 =over
