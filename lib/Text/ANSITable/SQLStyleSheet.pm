@@ -8,7 +8,7 @@ use JSON;
 use DBI;
 use DBD::SQLite;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 our $Json = JSON->new;
 
@@ -114,7 +114,7 @@ sub from_sth {
     for @{ $sth->{NAME} };
 
   # filter out __*_style columns
-  my @wanted = map {
+  my @wanted = sort { $a <=> $b } map {
     /^__(\w+)_style$/ ? () : $col2ix{$_}
   } keys %col2ix;
 
