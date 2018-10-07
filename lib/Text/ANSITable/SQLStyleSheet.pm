@@ -384,6 +384,7 @@ additional functions onto the handle or pass arguments to the query.
 
     $dbh->sqlite_create_function('truncate', 2, sub {
       my ($string, $max_length) = @_;
+      ...
     });
 
     my $sth = $dbh->prepare(q{
