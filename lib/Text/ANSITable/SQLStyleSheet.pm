@@ -379,15 +379,16 @@ the database handle as only argument, and is expected to return an
 executed statement handle. That gives callers a chance to install
 additional functions onto the handle or pass arguments to the query.
 
-  my $t = Text::ANSITable::SQLStyleSheet->from_sth($sth, sub {
-    my ($dbh) = @_;
+  my $t = Text::ANSITable::SQLStyleSheet->from_sth($data_sth, sub {
 
-    $dbh->sqlite_create_function('truncate', 2, sub {
+    my ($temp_dbh) = @_;
+
+    $temp_dbh->sqlite_create_function('truncate', 2, sub {
       my ($string, $max_length) = @_;
       ...
     });
 
-    my $sth = $dbh->prepare(q{
+    my $style_sth = $temp_dbh->prepare(q{
       WITH 
       args AS (
         SELECT ? AS max_length
@@ -399,9 +400,10 @@ additional functions onto the handle or pass arguments to the query.
           JOIN args
     });
 
-    $sth->execute( 100 );
+    $style_sth->execute( 100 );
 
-    return $sth;
+    return $style_sth;
+    
   });
 
 The return value is a C<Text::ANSITable> object.
