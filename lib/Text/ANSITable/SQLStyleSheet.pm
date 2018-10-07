@@ -8,7 +8,7 @@ use JSON;
 use DBI;
 use DBD::SQLite;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 our $Json = JSON->new;
 
