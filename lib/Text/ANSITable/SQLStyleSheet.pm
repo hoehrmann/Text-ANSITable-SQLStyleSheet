@@ -420,6 +420,9 @@ The return value is a C<Text::ANSITable> object.
   SELECT
     *
     ,
+    -------------------------------------------------------
+    -- Cell style
+    -------------------------------------------------------
     JSON_OBJECT(
       'column_name',
       JSON_OBJECT(
@@ -438,6 +441,9 @@ The return value is a C<Text::ANSITable> object.
       )
     ) AS __cell_style
     ,
+    -------------------------------------------------------
+    -- Row style
+    -------------------------------------------------------
     JSON_OBJECT(
       -- 'align', NULL,
       -- 'valign', NULL,
@@ -449,6 +455,9 @@ The return value is a C<Text::ANSITable> object.
       -- 'bgcolor', NULL
     ) AS __row_style
     ,
+    -------------------------------------------------------
+    -- Column style
+    -------------------------------------------------------
     JSON_OBJECT(
       'column_name',
       JSON_OBJECT(
